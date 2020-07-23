@@ -68,7 +68,7 @@ def Config():
     # ----------------------------------------
     
     # detection sampling
-    conf.batch_size = 2
+    conf.batch_size = 1
     conf.fg_image_ratio = 1.0
     conf.box_samples = 0.20
     conf.fg_fraction = 0.20
