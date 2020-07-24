@@ -16,6 +16,7 @@ docker run -it \
         --volume $PROJ_DIR/lib:/M3D-RPN/lib \
         --volume $PROJ_DIR/models:/M3D-RPN/models \
         --volume $PROJ_DIR/scripts:/M3D-RPN/scripts \
+        --volume $PROJ_DIR/output:/M3D-RPN/output \
         --volume $(readlink -f ../data/kitti/training):/M3D-RPN/data/kitti/training \
         --volume $(readlink -f ../data/kitti/testing):/M3D-RPN/data/kitti/testing \
         --rm \
