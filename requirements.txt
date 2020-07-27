@@ -31,7 +31,7 @@ oauthlib==3.1.0
 opencv-python==4.2.0.34
 pandas==1.0.3
 pathtools==0.1.2
-Pillow==7.0.0
+Pillow==6.1.0
 promise==2.3
 protobuf==3.11.3
 psutil==5.7.0
@@ -50,14 +50,16 @@ scikit-image==0.16.2
 scipy==1.4.1
 seaborn==0.10.1
 sentry-sdk==0.15.1
+shapely==1.7.0
 shortuuid==1.0.1
 six==1.14.0
 smmap==3.0.4
 subprocess32==3.5.4
-torch==1.0.0
+torch==0.4.0
 torchvision==0.2.1
 tqdm==4.44.1
 urllib3==1.25.9
+visdom==0.1.8.9
 vtk==8.1.2
 wandb==0.9.1
 watchdog==0.10.2

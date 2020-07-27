@@ -10,3 +10,4 @@ data/waymo_split/devkit/cpp/evaluate_object
 data/waymo_split/training/*
 data/waymo_split/validation/*
 lib/nms/*
+output/*

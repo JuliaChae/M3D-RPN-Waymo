@@ -1319,7 +1319,7 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
     """
 
     # import read_kitti_cal
-    from lib.imdb_util import read_kitti_cal
+    from lib.kitti_imdb_util import read_kitti_cal
 
     imlist = list_files(os.path.join(test_path, dataset_test, 'validation', 'image_2', ''), '*.png')
 
