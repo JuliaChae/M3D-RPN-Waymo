@@ -116,22 +116,22 @@ for line in text_file:
         new_id = '{:015d}'.format(imind)
 
         if not os.path.exists(os.path.join(waymo_val['cal'], str(new_id) + '.txt')):
-            os.symlink(os.path.join(waymo_raw['cal'], str(id) + '.txt'), os.path.join(waymo_val['cal'], str(new_id) + '.txt'))
+            os.symlink(os.path.join(waymo_raw_val['cal'], str(id) + '.txt'), os.path.join(waymo_val['cal'], str(new_id) + '.txt'))
 
         if not os.path.exists(os.path.join(waymo_val['ims'], str(new_id) + '.png')):
-            os.symlink(os.path.join(waymo_raw['ims'], str(id) + '.png'), os.path.join(waymo_val['ims'], str(new_id) + '.png'))
+            os.symlink(os.path.join(waymo_raw_val['ims'], str(id) + '.png'), os.path.join(waymo_val['ims'], str(new_id) + '.png'))
 
         if not os.path.exists(os.path.join(waymo_val['pre'], str(new_id) + '_01.png')):
-            os.symlink(os.path.join(waymo_raw['pre'], str(id) + '_01.png'), os.path.join(waymo_val['pre'], str(new_id) + '_01.png'))
+            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_01.png'), os.path.join(waymo_val['pre'], str(new_id) + '_01.png'))
         
         if not os.path.exists(os.path.join(waymo_val['pre'], str(new_id) + '_02.png')):
-            os.symlink(os.path.join(waymo_raw['pre'], str(id) + '_02.png'), os.path.join(waymo_val['pre'], str(new_id) + '_02.png'))
+            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_02.png'), os.path.join(waymo_val['pre'], str(new_id) + '_02.png'))
         
         if not os.path.exists(os.path.join(waymo_val['pre'], str(new_id) + '_03.png')):
-            os.symlink(os.path.join(waymo_raw['pre'], str(id) + '_03.png'), os.path.join(waymo_val['pre'], str(new_id) + '_03.png'))
+            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_03.png'), os.path.join(waymo_val['pre'], str(new_id) + '_03.png'))
 
         if not os.path.exists(os.path.join(waymo_val['lab'], str(new_id) + '.txt')):
-            os.symlink(os.path.join(waymo_raw['lab'], str(id) + '.txt'), os.path.join(waymo_val['lab'], str(new_id) + '.txt'))
+            os.symlink(os.path.join(waymo_raw_val['lab'], str(id) + '.txt'), os.path.join(waymo_val['lab'], str(new_id) + '.txt'))
 
         imind += 1
 
