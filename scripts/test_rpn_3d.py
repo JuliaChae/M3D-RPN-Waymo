@@ -16,10 +16,10 @@ np.set_printoptions(suppress=True)
 # -----------------------------------------
 # custom modules
 # -----------------------------------------
-from lib.imdb_util import *
+from lib.kitti_imdb_util import *
 
-conf_path = '/home/garrick/Desktop/M3D-RPN-Release/m3d_rpn_depth_aware_test_config.pkl'
-weights_path = '/home/garrick/Desktop/M3D-RPN-Release/m3d_rpn_depth_aware_test'
+conf_path = '/M3D-RPN/output/kitti_3d_multi_main/conf.pkl'
+weights_path = '/M3D-RPN/output/kitti_3d_multi_main/weights/model_50000_pkl'
 
 # load config
 conf = edict(pickle_read(conf_path))

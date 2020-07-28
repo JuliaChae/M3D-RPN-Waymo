@@ -16,7 +16,11 @@ docker run -it \
         --volume $PROJ_DIR/lib:/M3D-RPN/lib \
         --volume $PROJ_DIR/models:/M3D-RPN/models \
         --volume $PROJ_DIR/scripts:/M3D-RPN/scripts \
+        --volume $PROJ_DIR/output:/M3D-RPN/output \
         --volume $(readlink -f ../data/kitti/training):/M3D-RPN/data/kitti/training \
         --volume $(readlink -f ../data/kitti/testing):/M3D-RPN/data/kitti/testing \
+        --volume $(readlink -f ../data/waymo/training):/M3D-RPN/data/waymo/training \
+        --volume $(readlink -f ../data/waymo/testing):/M3D-RPN/data/waymo/testing \
+        --volume $(readlink -f ../data/waymo/validation):/M3D-RPN/data/waymo/validation \
         --rm \
     m3drpn-docker bash

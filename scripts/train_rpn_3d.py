@@ -16,7 +16,7 @@ np.set_printoptions(suppress=True)
 # custom modules
 # -----------------------------------------
 from lib.core import *
-from lib.imdb_util import *
+from lib.waymo_imdb_util import *
 from lib.loss.rpn_3d import *
 
 
@@ -59,7 +59,7 @@ def main(argv):
     iterator = None
     has_visdom = vis is not None
 
-    dataset = Dataset(conf, paths.data, paths.output)
+    dataset = WaymoDataset(conf, paths.data, paths.output)
 
     generate_anchors(conf, dataset.imdb, paths.output)
     compute_bbox_stats(conf, dataset.imdb, paths.output)
@@ -117,7 +117,7 @@ def main(argv):
 
         #  learning rate
         adjust_lr(conf, optimizer, iteration)
-
+        
         # forward
         cls, prob, bbox_2d, bbox_3d, feat_size = rpn_net(images)
 
