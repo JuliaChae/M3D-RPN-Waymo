@@ -23,36 +23,38 @@ np.set_printoptions(suppress=True)
 from lib.util import *
 
 split = 'waymo_split'
+cam_num = 1
+cam_view = '_frontleft'
 
 # base paths
 base_data = os.path.join(os.getcwd(), 'data')
 
 waymo_raw_tra = dict()
 waymo_raw_tra['cal'] = os.path.join(base_data, 'waymo', 'training', 'calib')
-waymo_raw_tra['ims'] = os.path.join(base_data, 'waymo', 'training', 'image_0')
-waymo_raw_tra['lab'] = os.path.join(base_data, 'waymo', 'training', 'label_0')
-waymo_raw_tra['pre'] = os.path.join(base_data, 'waymo', 'training', 'prev_0')
+waymo_raw_tra['ims'] = os.path.join(base_data, 'waymo', 'training', 'image_{}'.format(cam_num))
+waymo_raw_tra['lab'] = os.path.join(base_data, 'waymo', 'training', 'label_{}'.format(cam_num))
+waymo_raw_tra['pre'] = os.path.join(base_data, 'waymo', 'training', 'prev_{}'.format(cam_num))
 
 waymo_tra = dict()
-waymo_tra['cal'] = os.path.join(base_data, split, 'training', 'calib')
-waymo_tra['ims'] = os.path.join(base_data, split, 'training', 'image_0')
-waymo_tra['lab'] = os.path.join(base_data, split, 'training', 'label_0')
-waymo_tra['pre'] = os.path.join(base_data, split, 'training', 'prev_0')
+waymo_tra['cal'] = os.path.join(base_data, split, 'training' + cam_view, 'calib')
+waymo_tra['ims'] = os.path.join(base_data, split, 'training' + cam_view, 'image_{}'.format(cam_num))
+waymo_tra['lab'] = os.path.join(base_data, split, 'training' + cam_view, 'label_{}'.format(cam_num))
+waymo_tra['pre'] = os.path.join(base_data, split, 'training' + cam_view, 'prev_{}'.format(cam_num))
 
 waymo_raw_val = dict()
 waymo_raw_val['cal'] = os.path.join(base_data, 'waymo', 'validation', 'calib')
-waymo_raw_val['ims'] = os.path.join(base_data, 'waymo', 'validation', 'image_0')
-waymo_raw_val['lab'] = os.path.join(base_data, 'waymo', 'validation', 'label_0')
-waymo_raw_val['pre'] = os.path.join(base_data, 'waymo', 'validation', 'prev_20')
+waymo_raw_val['ims'] = os.path.join(base_data, 'waymo', 'validation', 'image_{}'.format(cam_num))
+waymo_raw_val['lab'] = os.path.join(base_data, 'waymo', 'validation', 'label_{}'.format(cam_num))
+waymo_raw_val['pre'] = os.path.join(base_data, 'waymo', 'validation', 'prev_{}'.format(cam_num))
 
 waymo_val = dict()
-waymo_val['cal'] = os.path.join(base_data, split, 'validation', 'calib')
-waymo_val['ims'] = os.path.join(base_data, split, 'validation', 'image_0')
-waymo_val['lab'] = os.path.join(base_data, split, 'validation', 'label_0')
-waymo_val['pre'] = os.path.join(base_data, split, 'validation', 'prev_0')
+waymo_val['cal'] = os.path.join(base_data, split, 'validation' + cam_view, 'calib')
+waymo_val['ims'] = os.path.join(base_data, split, 'validation' + cam_view, 'image_{}'.format(cam_num))
+waymo_val['lab'] = os.path.join(base_data, split, 'validation' + cam_view, 'label_{}'.format(cam_num))
+waymo_val['pre'] = os.path.join(base_data, split, 'validation' + cam_view, 'prev_{}'.format(cam_num))
 
-tra_file = os.path.join(base_data, split, 'train.txt')
-val_file = os.path.join(base_data, split, 'val.txt')
+tra_file = os.path.join(base_data, split, 'train'+ cam_view + '.txt')
+val_file = os.path.join(base_data, split, 'val' + cam_view + '.txt')
 
 # mkdirs
 mkdir_if_missing(waymo_tra['cal'])
@@ -80,22 +82,28 @@ for line in text_file:
         new_id = '{:015d}'.format(imind)
 
         if not os.path.exists(os.path.join(waymo_tra['cal'], str(new_id) + '.txt')):
-            os.symlink(os.path.join(waymo_raw_tra['cal'], str(id) + '.txt'), os.path.join(waymo_tra['cal'], str(new_id) + '.txt'))
+            os.symlink(os.path.join(waymo_raw_tra['cal'], str(id) + '.txt'),
+                       os.path.join(waymo_tra['cal'], str(new_id) + '.txt'))
 
         if not os.path.exists(os.path.join(waymo_tra['ims'], str(new_id) + '.png')):
-            os.symlink(os.path.join(waymo_raw_tra['ims'], str(id) + '.png'), os.path.join(waymo_tra['ims'], str(new_id) + '.png'))
+            os.symlink(os.path.join(waymo_raw_tra['ims'], str(id) + '.png'),
+                       os.path.join(waymo_tra['ims'], str(new_id) + '.png'))
 
         if not os.path.exists(os.path.join(waymo_tra['pre'], str(new_id) + '_01.png')):
-            os.symlink(os.path.join(waymo_raw_tra['pre'], str(id) + '_01.png'), os.path.join(waymo_tra['pre'], str(new_id) + '_01.png'))
+            os.symlink(os.path.join(waymo_raw_tra['pre'], str(id) + '_01.png'),
+                       os.path.join(waymo_tra['pre'], str(new_id) + '_01.png'))
 
         if not os.path.exists(os.path.join(waymo_tra['pre'], str(new_id) + '_02.png')):
-            os.symlink(os.path.join(waymo_raw_tra['pre'], str(id) + '_02.png'), os.path.join(waymo_tra['pre'], str(new_id) + '_02.png'))
+            os.symlink(os.path.join(waymo_raw_tra['pre'], str(id) + '_02.png'),
+                       os.path.join(waymo_tra['pre'], str(new_id) + '_02.png'))
 
         if not os.path.exists(os.path.join(waymo_tra['pre'], str(new_id) + '_03.png')):
-            os.symlink(os.path.join(waymo_raw_tra['pre'], str(id) + '_03.png'), os.path.join(waymo_tra['pre'], str(new_id) + '_03.png'))
+            os.symlink(os.path.join(waymo_raw_tra['pre'], str(id) + '_03.png'),
+                       os.path.join(waymo_tra['pre'], str(new_id) + '_03.png'))
 
         if not os.path.exists(os.path.join(waymo_tra['lab'], str(new_id) + '.txt')):
-            os.symlink(os.path.join(waymo_raw_tra['lab'], str(id) + '.txt'), os.path.join(waymo_tra['lab'], str(new_id) + '.txt'))
+            os.symlink(os.path.join(waymo_raw_tra['lab'], str(id) + '.txt'),
+                       os.path.join(waymo_tra['lab'], str(new_id) + '.txt'))
 
         imind += 1
 
@@ -116,22 +124,28 @@ for line in text_file:
         new_id = '{:015d}'.format(imind)
 
         if not os.path.exists(os.path.join(waymo_val['cal'], str(new_id) + '.txt')):
-            os.symlink(os.path.join(waymo_raw_val['cal'], str(id) + '.txt'), os.path.join(waymo_val['cal'], str(new_id) + '.txt'))
+            os.symlink(os.path.join(waymo_raw_val['cal'], str(id) + '.txt'),
+                       os.path.join(waymo_val['cal'], str(new_id) + '.txt'))
 
         if not os.path.exists(os.path.join(waymo_val['ims'], str(new_id) + '.png')):
-            os.symlink(os.path.join(waymo_raw_val['ims'], str(id) + '.png'), os.path.join(waymo_val['ims'], str(new_id) + '.png'))
+            os.symlink(os.path.join(waymo_raw_val['ims'], str(id) + '.png'),
+                       os.path.join(waymo_val['ims'], str(new_id) + '.png'))
 
         if not os.path.exists(os.path.join(waymo_val['pre'], str(new_id) + '_01.png')):
-            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_01.png'), os.path.join(waymo_val['pre'], str(new_id) + '_01.png'))
-        
+            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_01.png'),
+                       os.path.join(waymo_val['pre'], str(new_id) + '_01.png'))
+
         if not os.path.exists(os.path.join(waymo_val['pre'], str(new_id) + '_02.png')):
-            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_02.png'), os.path.join(waymo_val['pre'], str(new_id) + '_02.png'))
-        
+            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_02.png'),
+                       os.path.join(waymo_val['pre'], str(new_id) + '_02.png'))
+
         if not os.path.exists(os.path.join(waymo_val['pre'], str(new_id) + '_03.png')):
-            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_03.png'), os.path.join(waymo_val['pre'], str(new_id) + '_03.png'))
+            os.symlink(os.path.join(waymo_raw_val['pre'], str(id) + '_03.png'),
+                       os.path.join(waymo_val['pre'], str(new_id) + '_03.png'))
 
         if not os.path.exists(os.path.join(waymo_val['lab'], str(new_id) + '.txt')):
-            os.symlink(os.path.join(waymo_raw_val['lab'], str(id) + '.txt'), os.path.join(waymo_val['lab'], str(new_id) + '.txt'))
+            os.symlink(os.path.join(waymo_raw_val['lab'], str(id) + '.txt'),
+                       os.path.join(waymo_val['lab'], str(new_id) + '.txt'))
 
         imind += 1
 
