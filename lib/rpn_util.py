@@ -33,7 +33,7 @@ def generate_anchors(conf, imdb, cache_folder):
     # generate anchors
     else:
 
-        anchors = np.zeros([len(conf.anchor_scales)*len(conf.anchor_ratios), 4], dtype=np.float32)
+        anchors = np.zeros([len(conf.anchor_scales) * len(conf.anchor_ratios), 4], dtype=np.float32)
 
         aind = 0
 
@@ -43,18 +43,16 @@ def generate_anchors(conf, imdb, cache_folder):
             for ratio in conf.anchor_ratios:
 
                 h = scale
-                w = scale*ratio
+                w = scale * ratio
 
                 anchors[aind, 0:4] = anchor_center(w, h, conf.feat_stride)
                 aind += 1
-
 
         # optionally cluster anchors
         if conf.cluster_anchors:
             anchors = cluster_anchors(conf.feat_stride, anchors, conf.test_scale, imdb, conf.lbls,
                                       conf.ilbls, conf.anchor_ratios, conf.min_gt_vis, conf.min_gt_h,
                                       conf.max_gt_h, conf.even_anchors, conf.expand_anchors)
-
 
         # has 3d? then need to compute stats for each new dimension
         # presuming that anchors are initialized in "2d"
@@ -228,9 +226,10 @@ def cluster_anchors(feat_stride, anchors, test_scale, imdb, lbls, ilbls, anchor_
             if gts_val.shape[0] > 0:
 
                 # add normalized gts given 3d or 2d boxes
-                if has_3d: normalized_gts += np.concatenate((gts_val, gts_3d), axis=1).tolist()
-                else: normalized_gts += gts_val.tolist()
-
+                if has_3d:
+                    normalized_gts += np.concatenate((gts_val, gts_3d), axis=1).tolist()
+                else:
+                    normalized_gts += gts_val.tolist()
 
     # convert to np
     normalized_gts = np.array(normalized_gts)
@@ -243,7 +242,8 @@ def cluster_anchors(feat_stride, anchors, test_scale, imdb, lbls, ilbls, anchor_
     max_h = normalized_gts[-1, 3] - normalized_gts[-1, 1] + 1
 
     # for 3d, expand dimensions
-    if has_3d: anchors = np.concatenate((anchors, np.zeros([anchors.shape[0], 5])), axis=1)
+    if has_3d:
+        anchors = np.concatenate((anchors, np.zeros([anchors.shape[0], 5])), axis=1)
 
     # init expand
     best_anchors = anchors
@@ -387,11 +387,10 @@ def cluster_anchors(feat_stride, anchors, test_scale, imdb, lbls, ilbls, anchor_
                 # make a new anchor
                 if not valid_anchors[aind]:
                     randomness = 0.5
-                    multi = randomness*np.random.rand(len(valid_anchors_inds))
+                    multi = randomness * np.random.rand(len(valid_anchors_inds))
                     multi += valid_multi
                     multi /= np.sum(multi)
                     anchors[aind, :] = np.dot(anchors[valid_anchors_inds, :].T, multi.T)
-
 
             if not all(valid_anchors):
                 logging.info('warning: round {} some anchors not used during clustering'.format(round))
@@ -411,11 +410,14 @@ def cluster_anchors(feat_stride, anchors, test_scale, imdb, lbls, ilbls, anchor_
         if anchors.shape[0] < expand_anchors and expand_dif > expand_stop_dt:
 
             # append blank anchor
-            if has_3d: anchors = np.vstack((anchors, [0, 0, 0, 0, 0, 0, 0, 0 ,0]))
-            else: anchors = np.vstack((anchors, [0, 0, 0, 0]))
+            if has_3d:
+                anchors = np.vstack((anchors, [0, 0, 0, 0, 0, 0, 0, 0, 0]))
+            else:
+                anchors = np.vstack((anchors, [0, 0, 0, 0]))
 
         # force stop
-        else: expand_dif = -1
+        else:
+            expand_dif = -1
 
     logging.info('final_iou={:.4f}, final_coverage={:.4f}'.format(best_iou, best_cov))
 
@@ -493,7 +495,6 @@ def compute_targets(gts_val, gts_ign, box_lbls, rois, fg_thresh, ign_thresh, bg_
                     # compute 3d transform
                     transforms[fg_inds, 5:] = bbox_transform_3d(src_rois, src_3d, target_3d)
 
-
                 # store labels
                 transforms[fg_inds, 4] = [box_lbls[x] for x in targets[fg_inds]]
                 assert (all(transforms[fg_inds, 4] >= 1))
@@ -523,7 +524,6 @@ def compute_targets(gts_val, gts_ign, box_lbls, rois, fg_thresh, ign_thresh, bg_
         # all background
         transforms[:, 4] = -1
 
-
     return transforms, ols, raw_gt
 
 
@@ -534,15 +534,18 @@ def hill_climb(p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d, step_z_in
 
     ol_best, verts_best, _, invalid = test_projection(p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d)
 
-    if invalid: return z2d, ry3d, verts_best
+    if invalid:
+        return z2d, ry3d, verts_best
 
     # attempt to fit z/rot more properly
     while (step_z > z_lim or step_r > r_lim):
 
         if step_z > z_lim:
 
-            ol_neg, verts_neg, _, invalid_neg = test_projection(p2, p2_inv, box_2d, x2d, y2d, z2d - step_z, w3d, h3d, l3d, ry3d)
-            ol_pos, verts_pos, _, invalid_pos = test_projection(p2, p2_inv, box_2d, x2d, y2d, z2d + step_z, w3d, h3d, l3d, ry3d)
+            ol_neg, verts_neg, _, invalid_neg = test_projection(
+                p2, p2_inv, box_2d, x2d, y2d, z2d - step_z, w3d, h3d, l3d, ry3d)
+            ol_pos, verts_pos, _, invalid_pos = test_projection(
+                p2, p2_inv, box_2d, x2d, y2d, z2d + step_z, w3d, h3d, l3d, ry3d)
 
             invalid = ((ol_pos - ol_best) <= min_ol_dif) and ((ol_neg - ol_best) <= min_ol_dif)
 
@@ -562,8 +565,10 @@ def hill_climb(p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d, step_z_in
 
         if step_r > r_lim:
 
-            ol_neg, verts_neg, _, invalid_neg = test_projection(p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d - step_r)
-            ol_pos, verts_pos, _, invalid_pos = test_projection(p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d + step_r)
+            ol_neg, verts_neg, _, invalid_neg = test_projection(
+                p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d - step_r)
+            ol_pos, verts_pos, _, invalid_pos = test_projection(
+                p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d + step_r)
 
             invalid = ((ol_pos - ol_best) <= min_ol_dif) and ((ol_neg - ol_best) <= min_ol_dif)
 
@@ -581,8 +586,10 @@ def hill_climb(p2, p2_inv, box_2d, x2d, y2d, z2d, w3d, h3d, l3d, ry3d, step_z_in
             else:
                 step_r = step_r * 0.5
 
-    while ry3d > math.pi: ry3d -= math.pi * 2
-    while ry3d < (-math.pi): ry3d += math.pi * 2
+    while ry3d > math.pi:
+        ry3d -= math.pi * 2
+    while ry3d < (-math.pi):
+        ry3d += math.pi * 2
 
     return z2d, ry3d, verts_best
 
@@ -592,7 +599,7 @@ def clsInd2Name(lbls, ind):
     Converts a cls ind to string name
     """
 
-    if ind>=0 and ind<len(lbls):
+    if ind >= 0 and ind < len(lbls):
         return lbls[ind]
     else:
         raise ValueError('unknown class')
@@ -673,14 +680,14 @@ def compute_bbox_stats(conf, imdb, cache_folder=''):
                         gts_3d[gtind, 0:2] *= scale_factor
 
                     # compute transforms for all 3d
-                    transforms, _, _= compute_targets(gts_val, gts_ign, box_lbls, rois, conf.fg_thresh, conf.ign_thresh,
-                                                    conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh, gts_3d=gts_3d,
-                                                    anchors=conf.anchors, tracker=rois[:, 4])
+                    transforms, _, _ = compute_targets(gts_val, gts_ign, box_lbls, rois, conf.fg_thresh, conf.ign_thresh,
+                                                       conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh, gts_3d=gts_3d,
+                                                       anchors=conf.anchors, tracker=rois[:, 4])
                 else:
 
                     # compute transforms for 2d
                     transforms, _, _ = compute_targets(gts_val, gts_ign, box_lbls, rois, conf.fg_thresh, conf.ign_thresh,
-                                                    conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh)
+                                                       conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh)
 
                 gt_inds = np.flatnonzero(transforms[:, 4] > 0)
 
@@ -694,7 +701,7 @@ def compute_bbox_stats(conf, imdb, cache_folder=''):
 
                     class_counts += len(gt_inds)
 
-        means = sums/class_counts
+        means = sums / class_counts
 
         logging.info('Computing bbox regression stds..')
 
@@ -707,7 +714,8 @@ def compute_bbox_stats(conf, imdb, cache_folder=''):
                 rois = locate_anchors(conf.anchors, feat_size, conf.feat_stride)
 
                 # determine ignores
-                igns, rmvs = determine_ignores(imobj.gts, conf.lbls, conf.ilbls, conf.min_gt_vis, conf.min_gt_h, np.inf, scale_factor)
+                igns, rmvs = determine_ignores(imobj.gts, conf.lbls, conf.ilbls,
+                                               conf.min_gt_vis, conf.min_gt_h, np.inf, scale_factor)
 
                 # accumulate boxes
                 gts_all = bbXYWH2Coords(np.array([gt.bbox_full * scale_factor for gt in imobj.gts]))
@@ -733,13 +741,13 @@ def compute_bbox_stats(conf, imdb, cache_folder=''):
 
                     # compute transforms for all 3d
                     transforms, _, _ = compute_targets(gts_val, gts_ign, box_lbls, rois, conf.fg_thresh, conf.ign_thresh,
-                                                    conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh, gts_3d=gts_3d,
-                                                    anchors=conf.anchors, tracker=rois[:, 4])
+                                                       conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh, gts_3d=gts_3d,
+                                                       anchors=conf.anchors, tracker=rois[:, 4])
                 else:
 
                     # compute transforms for 2d
                     transforms, _, _ = compute_targets(gts_val, gts_ign, box_lbls, rois, conf.fg_thresh, conf.ign_thresh,
-                                                    conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh)
+                                                       conf.bg_thresh_lo, conf.bg_thresh_hi, conf.best_thresh)
 
                 gt_inds = np.flatnonzero(transforms[:, 4] > 0)
 
@@ -752,8 +760,7 @@ def compute_bbox_stats(conf, imdb, cache_folder=''):
                     else:
                         squared_sums += np.sum(np.power(transforms[gt_inds, 0:4] - means, 2), axis=0)
 
-
-        stds = np.sqrt((squared_sums/class_counts))
+        stds = np.sqrt((squared_sums / class_counts))
 
         means = means.astype(float)
         stds = stds.astype(float)
@@ -788,8 +795,10 @@ def unflatten_tensor(input, feat_size, anchors):
 
     bsize = input.shape[0]
 
-    if len(input.shape) >= 3: csize = input.shape[2]
-    else: csize = 1
+    if len(input.shape) >= 3:
+        csize = input.shape[2]
+    else:
+        csize = 1
 
     input = input.view(bsize, feat_size[0] * anchors.shape[0], feat_size[1], csize)
     input = input.permute(0, 3, 1, 2).contiguous()
@@ -914,7 +923,8 @@ def bbCoords2XYWH(box):
     Convert from [x1, y1, x2, y2] to [x,y,w,h]
     """
 
-    if box.shape[0] == 0: return np.empty([0, 4], dtype=float)
+    if box.shape[0] == 0:
+        return np.empty([0, 4], dtype=float)
 
     box[:, 2] -= box[:, 0] + 1
     box[:, 3] -= box[:, 1] + 1
@@ -927,7 +937,8 @@ def bbXYWH2Coords(box):
     Convert from [x,y,w,h] to [x1, y1, x2, y2]
     """
 
-    if box.shape[0] == 0: return np.empty([0,4], dtype=float)
+    if box.shape[0] == 0:
+        return np.empty([0, 4], dtype=float)
 
     box[:, 2] += box[:, 0] - 1
     box[:, 3] += box[:, 1] - 1
@@ -963,7 +974,6 @@ def bbox_transform_3d(ex_rois_2d, ex_rois_3d, gt_rois):
 
     targets = np.vstack((targets_dx, targets_dy, delta_z, scale_w, scale_h, scale_l, deltaRotY)).transpose()
     targets = np.hstack((targets, gt_rois[:, 7:]))
-
 
     return targets
 
@@ -1104,7 +1114,8 @@ def locate_anchors(anchors, feat_size, stride, convert_tensor=False):
 
     # compute anchor tracker
     anchor_tracker = np.zeros(shift_x1.shape, dtype=float)
-    for aind in range(0, rois.shape[0]): anchor_tracker[aind, :, :] = aind
+    for aind in range(0, rois.shape[0]):
+        anchor_tracker[aind, :, :] = aind
 
     stack_size = feat_size[0] * anchors.shape[0]
 
@@ -1158,7 +1169,7 @@ def calc_output_size(res, stride):
          ndarray: output resolution
     """
 
-    return np.ceil(np.array(res)/stride).astype(int)
+    return np.ceil(np.array(res) / stride).astype(int)
 
 
 def im_detect_3d(im, net, rpn_conf, preprocess, p2, gpu=0, synced=False):
@@ -1228,10 +1239,12 @@ def im_detect_3d(im, net, rpn_conf, preprocess, p2, gpu=0, synced=False):
     bbox_ry3d = src_3d[:, 4] + bbox_ry3d[0, :]
 
     # bundle
-    coords_3d = torch.stack((bbox_x3d, bbox_y3d, bbox_z3d[:bbox_x3d.shape[0]], bbox_w3d[:bbox_x3d.shape[0]], bbox_h3d[:bbox_x3d.shape[0]], bbox_l3d[:bbox_x3d.shape[0]], bbox_ry3d[:bbox_x3d.shape[0]]), dim=1)
+    coords_3d = torch.stack((bbox_x3d, bbox_y3d, bbox_z3d[:bbox_x3d.shape[0]], bbox_w3d[:bbox_x3d.shape[0]], bbox_h3d[
+                            :bbox_x3d.shape[0]], bbox_l3d[:bbox_x3d.shape[0]], bbox_ry3d[:bbox_x3d.shape[0]]), dim=1)
 
     # compile deltas pred
-    deltas_2d = torch.cat((bbox_x[0, :, np.newaxis], bbox_y[0, :, np.newaxis], bbox_w[0, :, np.newaxis], bbox_h[0, :, np.newaxis]), dim=1)
+    deltas_2d = torch.cat((bbox_x[0, :, np.newaxis], bbox_y[0, :, np.newaxis],
+                           bbox_w[0, :, np.newaxis], bbox_h[0, :, np.newaxis]), dim=1)
     coords_2d = bbox_transform_inv(rois, deltas_2d, means=rpn_conf.bbox_means[0, :], stds=rpn_conf.bbox_stds[0, :])
 
     # detach onto cpu
@@ -1349,7 +1362,7 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
 
         file = open(os.path.join(results_path, name + '.txt'), 'w')
         text_to_write = ''
-        
+
         for boxind in range(0, min(rpn_conf.nms_topN_post, aboxes.shape[0])):
 
             box = aboxes[boxind, :]
@@ -1378,11 +1391,12 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
                 coord3d = np.linalg.inv(p2).dot(np.array([x3d * z3d, y3d * z3d, 1 * z3d, 1]))
                 ry3d = convertAlpha2Rot(ry3d, coord3d[2], coord3d[0])
 
-                step_r = 0.3*math.pi
+                step_r = 0.3 * math.pi
                 r_lim = 0.01
                 box_2d = np.array([x1, y1, width, height])
 
-                z3d, ry3d, verts_best = hill_climb(p2, p2_inv, box_2d, x3d, y3d, z3d, w3d, h3d, l3d, ry3d, step_r_init=step_r, r_lim=r_lim)
+                z3d, ry3d, verts_best = hill_climb(p2, p2_inv, box_2d, x3d, y3d, z3d,
+                                                   w3d, h3d, l3d, ry3d, step_r_init=step_r, r_lim=r_lim)
 
                 # predict a more accurate projection
                 coord3d = np.linalg.inv(p2).dot(np.array([x3d * z3d, y3d * z3d, 1 * z3d, 1]))
@@ -1392,11 +1406,11 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
                 y3d = coord3d[1]
                 z3d = coord3d[2]
 
-                y3d += h3d/2
-                
+                y3d += h3d / 2
+
                 text_to_write += ('{} -1 -1 {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} '
-                           + '{:.6f} {:.6f}\n').format(cls, alpha, x1, y1, x2, y2, h3d, w3d, l3d, x3d, y3d, z3d, ry3d, score)
-                           
+                                  + '{:.6f} {:.6f}\n').format(cls, alpha, x1, y1, x2, y2, h3d, w3d, l3d, x3d, y3d, z3d, ry3d, score)
+
         file.write(text_to_write)
         file.close()
 
@@ -1406,9 +1420,10 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
 
             print_str = 'testing {}/{}, dt: {:0.3f}, eta: {}'.format(imind + 1, len(imlist), dt, time_str)
 
-            if use_log: logging.info(print_str)
-            else: print(print_str)
-
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
 
     # evaluate
     script = os.path.join(test_path, dataset_test, 'devkit', 'cpp', 'evaluate_object')
@@ -1427,27 +1442,33 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
             easy, mod, hard = parse_kitti_result(respath_2d)
 
             print_str = 'test_iter {} 2d {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
-                                                                                                    easy, mod, hard)
-            if use_log: logging.info(print_str)
-            else: print(print_str)
+                                                                                                   easy, mod, hard)
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
 
         if os.path.exists(respath_gr):
             easy, mod, hard = parse_kitti_result(respath_gr)
 
             print_str = 'test_iter {} gr {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
-                                                                                                    easy, mod, hard)
+                                                                                                   easy, mod, hard)
 
-            if use_log: logging.info(print_str)
-            else: print(print_str)
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
 
         if os.path.exists(respath_3d):
             easy, mod, hard = parse_kitti_result(respath_3d)
 
             print_str = 'test_iter {} 3d {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
-                                                                                                    easy, mod, hard)
+                                                                                                   easy, mod, hard)
 
-            if use_log: logging.info(print_str)
-            else: print(print_str)
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
 
 
 def parse_kitti_result(respath):
@@ -1497,10 +1518,155 @@ def parse_kitti_vo(respath):
 
     text_file.close()
 
-    t = acc[0, 0]*100
+    t = acc[0, 0] * 100
     r = acc[0, 1]
 
     return t, r
+
+def test_waymo_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=True):
+    """
+    Test the KITTI framework for object detection in 3D
+    """
+
+    # import read_kitti_cal
+    from lib.waymo_imdb_util import read_waymo_cal
+
+    imlist = list_files(os.path.join(test_path, dataset_test, 'validation_left', 'image_3', ''), '*.png')
+
+    preprocess = Preprocess([rpn_conf.test_scale], rpn_conf.image_means, rpn_conf.image_stds)
+
+    # fix paths slightly
+    _, test_iter, _ = file_parts(results_path.replace('/data', ''))
+    test_iter = test_iter.replace('results_', '')
+
+    # init
+    test_start = time()
+
+    for imind, impath in enumerate(imlist):
+
+        im = cv2.imread(impath)
+
+        base_path, name, ext = file_parts(impath)
+
+        # read in calib
+        p2 = read_waymo_cal(os.path.join(test_path, dataset_test, 'validation', 'calib', name + '.txt'), camera=3)
+        p2_inv = np.linalg.inv(p2)
+
+        # forward test batch
+        aboxes = im_detect_3d(im, net, rpn_conf, preprocess, p2)
+
+        base_path, name, ext = file_parts(impath)
+
+        file = open(os.path.join(results_path, name + '.txt'), 'w')
+        text_to_write = ''
+
+        for boxind in range(0, min(rpn_conf.nms_topN_post, aboxes.shape[0])):
+
+            box = aboxes[boxind, :]
+            score = box[4]
+            cls = rpn_conf.lbls[int(box[5] - 1)]
+
+            if score >= 0.75:
+
+                x1 = box[0]
+                y1 = box[1]
+                x2 = box[2]
+                y2 = box[3]
+                width = (x2 - x1 + 1)
+                height = (y2 - y1 + 1)
+
+                # plot 3D box
+                x3d = box[6]
+                y3d = box[7]
+                z3d = box[8]
+                w3d = box[9]
+                h3d = box[10]
+                l3d = box[11]
+                ry3d = box[12]
+
+                # convert alpha into ry3d
+                coord3d = np.linalg.inv(p2).dot(np.array([x3d * z3d, y3d * z3d, 1 * z3d, 1]))
+                ry3d = convertAlpha2Rot(ry3d, coord3d[2], coord3d[0])
+
+                step_r = 0.3 * math.pi
+                r_lim = 0.01
+                box_2d = np.array([x1, y1, width, height])
+
+                z3d, ry3d, verts_best = hill_climb(p2, p2_inv, box_2d, x3d, y3d, z3d,
+                                                   w3d, h3d, l3d, ry3d, step_r_init=step_r, r_lim=r_lim)
+
+                # predict a more accurate projection
+                coord3d = np.linalg.inv(p2).dot(np.array([x3d * z3d, y3d * z3d, 1 * z3d, 1]))
+                alpha = convertRot2Alpha(ry3d, coord3d[2], coord3d[0])
+
+                x3d = coord3d[0]
+                y3d = coord3d[1]
+                z3d = coord3d[2]
+
+                y3d += h3d / 2
+
+                text_to_write += ('{} -1 -1 {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} '
+                                  + '{:.6f} {:.6f}\n').format(cls, alpha, x1, y1, x2, y2, h3d, w3d, l3d, x3d, y3d, z3d, ry3d, score)
+
+        file.write(text_to_write)
+        file.close()
+
+        # display stats
+        if (imind + 1) % 1000 == 0:
+            time_str, dt = compute_eta(test_start, imind + 1, len(imlist))
+
+            print_str = 'testing {}/{}, dt: {:0.3f}, eta: {}'.format(imind + 1, len(imlist), dt, time_str)
+
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
+
+    # evaluate
+    script = os.path.join(test_path, dataset_test, 'devkit', 'cpp', 'evaluate_object')
+    with open(os.devnull, 'w') as devnull:
+        out = subprocess.check_output([script, results_path.replace('/data', '')], stderr=devnull)
+
+    for lbl in rpn_conf.lbls:
+
+        lbl = lbl.lower()
+
+        respath_2d = os.path.join(results_path.replace('/data', ''), 'stats_{}_detection.txt'.format(lbl))
+        respath_gr = os.path.join(results_path.replace('/data', ''), 'stats_{}_detection_ground.txt'.format(lbl))
+        respath_3d = os.path.join(results_path.replace('/data', ''), 'stats_{}_detection_3d.txt'.format(lbl))
+
+        if os.path.exists(respath_2d):
+            easy, mod, hard = parse_kitti_result(respath_2d)
+
+            print_str = 'test_iter {} 2d {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+                                                                                                   easy, mod, hard)
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
+
+        if os.path.exists(respath_gr):
+            easy, mod, hard = parse_kitti_result(respath_gr)
+
+            print_str = 'test_iter {} gr {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+                                                                                                   easy, mod, hard)
+
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
+
+        if os.path.exists(respath_3d):
+            easy, mod, hard = parse_kitti_result(respath_3d)
+
+            print_str = 'test_iter {} 3d {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+                                                                                                   easy, mod, hard)
+
+            if use_log:
+                logging.info(print_str)
+            else:
+                print(print_str)
+
 
 
 def test_projection(p2, p2_inv, box_2d, cx, cy, z, w3d, h3d, l3d, rotY):
@@ -1539,5 +1705,3 @@ def test_projection(p2, p2_inv, box_2d, cx, cy, z, w3d, h3d, l3d, rotY):
     ol = -(np.abs(x - x_new) + np.abs(y - y_new) + np.abs(x2 - x2_new) + np.abs(y2 - y2_new))
 
     return ol, verts3d, b2, invalid
-
-

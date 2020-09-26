@@ -16,17 +16,17 @@ np.set_printoptions(suppress=True)
 # -----------------------------------------
 # custom modules
 # -----------------------------------------
-from lib.kitti_imdb_util import *
+from lib.waymo_imdb_util import *
 
-conf_path = '/M3D-RPN/output/kitti_3d_multi_main/conf.pkl'
-weights_path = '/M3D-RPN/output/kitti_3d_multi_main/weights/model_50000_pkl'
+conf_path = '/M3D-RPN/output/waymo_3d_multi_main_left/conf.pkl'
+weights_path = '/M3D-RPN/output/waymo_3d_multi_main_left/weights/model_400000_pkl'
 
 # load config
 conf = edict(pickle_read(conf_path))
 conf.pretrained = None
 
 data_path = os.path.join(os.getcwd(), 'data')
-results_path = os.path.join('output', 'tmp_results', 'data')
+results_path = os.path.join('output', 'eval/waymo_results_left', '400000', 'left', 'data')
 
 # make directory
 mkdir_if_missing(results_path, delete_if_exist=True)
@@ -57,4 +57,4 @@ print(pretty_print('conf', conf))
 # test kitti
 # -----------------------------------------
 
-test_kitti_3d(conf.dataset_test, net, conf, results_path, data_path, use_log=False)
+test_waymo_3d(conf.dataset_test, net, conf, results_path, data_path, use_log=False)

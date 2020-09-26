@@ -47,12 +47,13 @@ class WaymoDataset(torch.utils.data.Dataset):
         self.video_count = 1 if not ('video_count' in conf) else conf.video_count
         self.use_3d_for_2d = ('use_3d_for_2d' in conf) and conf.use_3d_for_2d
 
-        self.camera = 0
+        self.camera = conf.camera
+        self.camera_str = conf.camera_str
 
         # use cache?
-        if (cache_folder is None) and os.path.exists(os.path.join(cache_folder, 'imdb_waymo.pkl')):
+        if (cache_folder is None) and os.path.exists(os.path.join(cache_folder, 'imdb_waymo_{}.pkl'.format(self.camera))):
             logging.info('Preloading imdb.')
-            imdb = pickle_read(os.path.join(cache_folder, 'imdb_waymo.pkl'))
+            imdb = pickle_read(os.path.join(cache_folder, 'imdb_waymo_{}.pkl'.format(self.camera)))
 
         else:
 
@@ -66,7 +67,7 @@ class WaymoDataset(torch.utils.data.Dataset):
                 # kitti formatting
                 if db['anno_fmt'].lower() == 'waymo_det':
 
-                    train_folder = os.path.join(root, db['name'], 'training')
+                    train_folder = os.path.join(root, db['name'], 'training' + self.camera_str)
 
                     ann_folder = os.path.join(train_folder, 'label_{}'.format(self.camera), '')
                     cal_folder = os.path.join(train_folder, 'calib', '')
@@ -173,7 +174,7 @@ class WaymoDataset(torch.utils.data.Dataset):
 
             # cache off the imdb?
             if cache_folder is not None:
-                pickle_write(os.path.join(cache_folder, 'imdb_waymo.pkl'), imdb)
+                pickle_write(os.path.join(cache_folder, 'imdb_waymo_{}.pkl'.format(self.camera)), imdb)
 
         # store more information
         self.datasets_train = conf.datasets_train
@@ -295,7 +296,7 @@ class WaymoDataset(torch.utils.data.Dataset):
         return self.len
 
 
-def read_waymo_cal(calfile, camera):
+def read_waymo_cal(calfile, camera=0):
     """
     Reads the kitti calibration projection matrix (p2) file from disc.
 
@@ -305,9 +306,8 @@ def read_waymo_cal(calfile, camera):
 
     text_file = open(calfile, 'r')
 
-    p2pat = re.compile(('(P0:)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)' +
+    p2pat = re.compile(('(P' + str(camera) + ':)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)' +
                         '\s+(fpat)\s+(fpat)\s+(fpat)\s*\n').replace('fpat', '[-+]?[\d]+\.?[\d]*[Ee](?:[-+]?[\d]+)?'))
-
     for line in text_file:
 
         parsed = p2pat.fullmatch(line)

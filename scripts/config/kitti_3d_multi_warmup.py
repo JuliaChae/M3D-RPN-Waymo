@@ -51,7 +51,8 @@ def Config():
     conf.dataset_test = 'kitti_split1'
     conf.datasets_train = [{'name': 'kitti_split1', 'anno_fmt': 'kitti_det', 'im_ext': '.png', 'scale': 1}]
     conf.use_3d_for_2d = True
-    
+    conf.dataset_type = 'KittiDataset'
+
     # percent expected height ranges based on test_scale
     # used for anchor selection 
     conf.percent_anc_h = [0.0625, 0.75]
