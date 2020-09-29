@@ -26,7 +26,7 @@ from lib.util import *
 from lib.augmentations import *
 from lib.core import *
 
-class Dataset(torch.utils.data.Dataset):
+class WaymoDataset(torch.utils.data.Dataset):
     """
     A single Dataset class is used for the whole project,
     which implements the __init__ and __get__ functions from PyTorch.
@@ -47,10 +47,13 @@ class Dataset(torch.utils.data.Dataset):
         self.video_count = 1 if not ('video_count' in conf) else conf.video_count
         self.use_3d_for_2d = ('use_3d_for_2d' in conf) and conf.use_3d_for_2d
 
+        self.camera = conf.camera
+        self.camera_str = conf.camera_str
+
         # use cache?
-        if (cache_folder is not None) and os.path.exists(os.path.join(cache_folder, 'imdb.pkl')):
+        if (cache_folder is None) and os.path.exists(os.path.join(cache_folder, 'imdb_waymo_{}.pkl'.format(self.camera))):
             logging.info('Preloading imdb.')
-            imdb = pickle_read(os.path.join(cache_folder, 'imdb.pkl'))
+            imdb = pickle_read(os.path.join(cache_folder, 'imdb_waymo_{}.pkl'.format(self.camera)))
 
         else:
 
@@ -61,15 +64,14 @@ class Dataset(torch.utils.data.Dataset):
 
                 # single imdb
                 imdb_single_db = []
-
                 # kitti formatting
-                if db['anno_fmt'].lower() == 'kitti_det':
+                if db['anno_fmt'].lower() == 'waymo_det':
 
-                    train_folder = os.path.join(root, db['name'], 'training')
+                    train_folder = os.path.join(root, db['name'], 'training' + self.camera_str)
 
-                    ann_folder = os.path.join(train_folder, 'label_2', '')
+                    ann_folder = os.path.join(train_folder, 'label_{}'.format(self.camera), '')
                     cal_folder = os.path.join(train_folder, 'calib', '')
-                    im_folder = os.path.join(train_folder, 'image_2', '')
+                    im_folder = os.path.join(train_folder, 'image_{}'.format(self.camera), '')
 
                     # get sorted filepaths
                     annlist = sorted(glob(ann_folder + '*.txt'))
@@ -77,7 +79,6 @@ class Dataset(torch.utils.data.Dataset):
                     imdb_start = time()
 
                     self.affine_size = None if not ('affine_size' in conf) else conf.affine_size
-
                     for annind, annpath in enumerate(annlist):
 
                         # get file parts
@@ -86,15 +87,15 @@ class Dataset(torch.utils.data.Dataset):
 
                         calpath = os.path.join(cal_folder, id + '.txt')
                         impath = os.path.join(im_folder, id + db['im_ext'])
-                        impath_pre = os.path.join(train_folder, 'prev_2', id + '_01' + db['im_ext'])
-                        impath_pre2 = os.path.join(train_folder, 'prev_2', id + '_02' + db['im_ext'])
-                        impath_pre3 = os.path.join(train_folder, 'prev_2', id + '_03' + db['im_ext'])
+                        impath_pre = os.path.join(train_folder, 'prev_%s'.format(self.camera), id + '_01' + db['im_ext'])
+                        impath_pre2 = os.path.join(train_folder, 'prev_%s'.format(self.camera), id + '_02' + db['im_ext'])
+                        impath_pre3 = os.path.join(train_folder, 'prev_%s'.format(self.camera), id + '_03' + db['im_ext'])
 
                         # read gts
-                        p2 = read_kitti_cal(calpath)
-                        p2_inv = np.linalg.inv(p2)
+                        p = read_waymo_cal(calpath, self.camera)
+                        p_inv = np.linalg.inv(p)
 
-                        gts = read_kitti_label(annpath, p2, self.use_3d_for_2d)
+                        gts = read_waymo_label(annpath, p, self.use_3d_for_2d)
 
                         if not self.affine_size is None:
 
@@ -142,8 +143,8 @@ class Dataset(torch.utils.data.Dataset):
                         # store gts
                         obj.id = id
                         obj.gts = gts
-                        obj.p2 = p2
-                        obj.p2_inv = p2_inv
+                        obj.p2 = p
+                        obj.p2_inv = p_inv
 
                         # im properties
                         im = Image.open(impath)
@@ -173,7 +174,7 @@ class Dataset(torch.utils.data.Dataset):
 
             # cache off the imdb?
             if cache_folder is not None:
-                pickle_write(os.path.join(cache_folder, 'imdb.pkl'), imdb)
+                pickle_write(os.path.join(cache_folder, 'imdb_waymo_{}.pkl'.format(self.camera)), imdb)
 
         # store more information
         self.datasets_train = conf.datasets_train
@@ -295,7 +296,7 @@ class Dataset(torch.utils.data.Dataset):
         return self.len
 
 
-def read_kitti_cal(calfile):
+def read_waymo_cal(calfile, camera=0):
     """
     Reads the kitti calibration projection matrix (p2) file from disc.
 
@@ -305,9 +306,8 @@ def read_kitti_cal(calfile):
 
     text_file = open(calfile, 'r')
 
-    p2pat = re.compile(('(P2:)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)' +
+    p2pat = re.compile(('(P' + str(camera) + ':)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)' +
                         '\s+(fpat)\s+(fpat)\s+(fpat)\s*\n').replace('fpat', '[-+]?[\d]+\.?[\d]*[Ee](?:[-+]?[\d]+)?'))
-
     for line in text_file:
 
         parsed = p2pat.fullmatch(line)
@@ -397,7 +397,7 @@ def read_kitti_poses(posefile):
     return ps
 
 
-def read_kitti_label(file, p2, use_3d_for_2d=False):
+def read_waymo_label(file, p2, use_3d_for_2d=False):
     """
     Reads the kitti label file from disc.
 
@@ -432,7 +432,7 @@ def read_kitti_label(file, p2, use_3d_for_2d=False):
     '''
 
     pattern = re.compile(('([a-zA-Z\-\?\_]+)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+'
-                          + '(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s*((fpat)?)\n')
+                          + '(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s+(fpat)\s*((fpat)?)\n')
                          .replace('fpat', '[-+]?\d*\.\d+|[-+]?\d+'))
 
 
@@ -447,8 +447,13 @@ def read_kitti_label(file, p2, use_3d_for_2d=False):
             obj = edict()
 
             ign = False
+            
+            waymo_classes = ['VEHICLE', 'PEDESTRIAN', 'CYCLIST', 'SIGN']
+            kitti_class = ['Car', 'Pedestrian', 'Cyclist', 'DontCare']
+            # extract label, truncation, occlusion
+            class_index = waymo_classes.index(parsed.group(1))
+            cls = kitti_class[class_index]
 
-            cls = parsed.group(1)
             trunc = float(parsed.group(2))
             occ = float(parsed.group(3))
             alpha = float(parsed.group(4))

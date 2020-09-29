@@ -92,8 +92,6 @@ def init_training_model(conf, cache_folder):
         wd = conf.weight_decay
 
         optimizer = torch.optim.Adamax(network.parameters(), lr=lr, weight_decay=wd)
-
-
     return network, optimizer
 
 
@@ -580,7 +578,7 @@ def next_iteration(loader, iterator):
     return iterator, images, imobjs
 
 
-def init_training_paths(conf_name, use_tmp_folder=None):
+def init_training_paths(conf_name, use_tmp_folder=None, name=""):
     """
     Simple function to store and create the relevant paths for the project,
     based on the base = current_working_dir (cwd). For this reason, we expect
@@ -600,7 +598,7 @@ def init_training_paths(conf_name, use_tmp_folder=None):
     paths = edict()
     paths.base = os.getcwd()
     paths.data = os.path.join(paths.base, 'data')
-    paths.output = os.path.join(os.getcwd(), 'output', conf_name)
+    paths.output = os.path.join(os.getcwd(), 'output', conf_name + name)
     paths.weights = os.path.join(paths.output, 'weights')
     paths.logs = os.path.join(paths.output, 'log')
 

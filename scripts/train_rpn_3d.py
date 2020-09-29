@@ -16,26 +16,33 @@ np.set_printoptions(suppress=True)
 # custom modules
 # -----------------------------------------
 from lib.core import *
-from lib.imdb_util import *
 from lib.loss.rpn_3d import *
+from lib.waymo_imdb_util import WaymoDataset
+from lib.kitti_imdb_util import KittiDataset 
 
+__all__ = {
+    'WaymoDataset': WaymoDataset,
+    'KittiDataset': KittiDataset
+}
 
 def main(argv):
-
     # -----------------------------------------
     # parse arguments
     # -----------------------------------------
-    opts, args = getopt(argv, '', ['config=', 'restore='])
+    opts, args = getopt(argv, '', ['config=', 'restore=', 'output='])
 
     # defaults
     conf_name = None
     restore = None
+    output_version = "0"
+
 
     # read opts
     for opt, arg in opts:
 
         if opt in ('--config'): conf_name = arg
         if opt in ('--restore'): restore = int(arg)
+        if opt in ('--output'): output_version = arg
 
     # required opt
     if conf_name is None:
@@ -44,13 +51,11 @@ def main(argv):
     # -----------------------------------------
     # basic setup
     # -----------------------------------------
-
     conf = init_config(conf_name)
-    paths = init_training_paths(conf_name)
+    paths = init_training_paths(conf_name, name="_" + output_version)
 
     init_torch(conf.rng_seed, conf.cuda_seed)
     init_log_file(paths.logs)
-
     vis = init_visdom(conf_name, conf.visdom_port)
 
     # defaults
@@ -59,7 +64,7 @@ def main(argv):
     iterator = None
     has_visdom = vis is not None
 
-    dataset = Dataset(conf, paths.data, paths.output)
+    dataset = __all__[conf.dataset_type](conf, paths.data, paths.output)
 
     generate_anchors(conf, dataset.imdb, paths.output)
     compute_bbox_stats(conf, dataset.imdb, paths.output)
@@ -106,12 +111,15 @@ def main(argv):
 
     start_time = time()
 
+
     # -----------------------------------------
     # train
     # -----------------------------------------
 
     for iteration in range(start_iter, conf.max_iter):
 
+        torch.cuda.empty_cache()
+        
         # next iteration
         iterator, images, imobjs = next_iteration(dataset.loader, iterator)
 
@@ -162,7 +170,6 @@ def main(argv):
 
             # store checkpoint
             save_checkpoint(optimizer, rpn_net, paths.weights, (iteration + 1))
-
             if conf.do_test:
 
                 # eval mode
@@ -174,13 +181,13 @@ def main(argv):
                 # -----------------------------------------
                 # test kitti
                 # -----------------------------------------
-                if conf.test_protocol.lower() == 'kitti':
+                if conf.test_protocol.lower() == 'waymo':
 
                     # delete and re-make
                     results_path = os.path.join(results_path, 'data')
-                    mkdir_if_missing(results_path, delete_if_exist=True)
+                    #mkdir_if_missing(results_path, delete_if_exist=True)
 
-                    test_kitti_3d(conf.dataset_test, rpn_net, conf, results_path, paths.data)
+                    #test_waymo_3d(conf.dataset_test, rpn_net, conf, results_path, paths.data)
 
                 else:
                     logging.warning('Testing protocol {} not understood.'.format(conf.test_protocol))

@@ -16,7 +16,7 @@ def Config():
     conf.lr = 0.004
     conf.momentum = 0.9
     conf.weight_decay = 0.0005
-    conf.max_iter = 50000
+    conf.max_iter = 400000
     conf.snapshot_iter = 10000
     conf.display = 250
     conf.do_test = True
@@ -31,8 +31,8 @@ def Config():
     conf.cuda_seed = 2
     
     # misc network
-    conf.image_means = [0.485, 0.456, 0.406]
-    conf.image_stds = [0.229, 0.224, 0.225]
+    conf.image_means = [0.337, 0.371, 0.419]
+    conf.image_stds = [0.224, 0.245, 0.286]
     conf.feat_stride = 16
     
     conf.has_3d = True
@@ -48,10 +48,12 @@ def Config():
     conf.distort_prob = -1
     
     # datasets
-    conf.dataset_test = 'kitti_split1'
-    conf.datasets_train = [{'name': 'kitti_split1', 'anno_fmt': 'kitti_det', 'im_ext': '.png', 'scale': 1}]
-    conf.use_3d_for_2d = True
-    conf.dataset_type = 'KittiDataset'
+    conf.dataset_test = 'waymo_split'
+    conf.datasets_train = [{'name': 'waymo_split', 'anno_fmt': 'waymo_det', 'im_ext': '.png', 'scale': 1}]
+    conf.use_3d_for_2d = False
+    conf.dataset_type = 'WaymoDataset'
+    conf.camera = 3
+    conf.camera_str = '_left'
     
     # percent expected height ranges based on test_scale
     # used for anchor selection 
@@ -89,8 +91,8 @@ def Config():
     conf.nms_thres = 0.4
     conf.clip_boxes = False
 
-    conf.test_protocol = 'kitti'
-    conf.test_db = 'kitti'
+    conf.test_protocol = 'waymo'
+    conf.test_db = 'waymo'
     conf.test_min_h = 0
     conf.min_det_scales = [0, 0]
 
@@ -129,7 +131,7 @@ def Config():
     # visdom
     conf.visdom_port = 8100
     
-    conf.pretrained = 'output/kitti_3d_multi_warmup/weights/model_50000_pkl'
+    conf.pretrained = 'output/waymo_3d_multi_warmup_left/weights/model_400000_pkl'
 
     return conf
 

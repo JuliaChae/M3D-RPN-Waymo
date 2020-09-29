@@ -122,7 +122,7 @@ class RPN_3D_loss(nn.Module):
         bbox_l3d_dn = bbox_l3d * self.bbox_stds[:, 9][0] + self.bbox_means[:, 9][0]
         bbox_ry3d_dn = bbox_ry3d * self.bbox_stds[:, 10][0] + self.bbox_means[:, 10][0]
 
-        src_anchors = self.anchors[rois[:, 4].type(torch.cuda.LongTensor), :]
+        src_anchors = self.anchors[rois[:, 4].type(torch.LongTensor), :]
         src_anchors = torch.tensor(src_anchors, requires_grad=False).type(torch.cuda.FloatTensor)
         if len(src_anchors.shape) == 1: src_anchors = src_anchors.unsqueeze(0)
 
@@ -195,22 +195,22 @@ class RPN_3D_loss(nn.Module):
 
                 transforms = torch.from_numpy(transforms).cuda()
 
-                labels[bind, fg_inds] = transforms[fg_inds, 4]
+                labels[bind, fg_inds] = transforms.cpu()[fg_inds, 4]
                 labels[bind, ign_inds] = IGN_FLAG
                 labels[bind, bg_inds] = 0
 
-                bbox_x_tar[bind, :] = transforms[:, 0]
-                bbox_y_tar[bind, :] = transforms[:, 1]
-                bbox_w_tar[bind, :] = transforms[:, 2]
-                bbox_h_tar[bind, :] = transforms[:, 3]
+                bbox_x_tar[bind, :] = transforms.cpu()[:, 0]
+                bbox_y_tar[bind, :] = transforms.cpu()[:, 1]
+                bbox_w_tar[bind, :] = transforms.cpu()[:, 2]
+                bbox_h_tar[bind, :] = transforms.cpu()[:, 3]
 
-                bbox_x3d_tar[bind, :] = transforms[:, 5]
-                bbox_y3d_tar[bind, :] = transforms[:, 6]
-                bbox_z3d_tar[bind, :] = transforms[:, 7]
-                bbox_w3d_tar[bind, :] = transforms[:, 8]
-                bbox_h3d_tar[bind, :] = transforms[:, 9]
-                bbox_l3d_tar[bind, :] = transforms[:, 10]
-                bbox_ry3d_tar[bind, :] = transforms[:, 11]
+                bbox_x3d_tar[bind, :] = transforms.cpu()[:, 5]
+                bbox_y3d_tar[bind, :] = transforms.cpu()[:, 6]
+                bbox_z3d_tar[bind, :] = transforms.cpu()[:, 7]
+                bbox_w3d_tar[bind, :] = transforms.cpu()[:, 8]
+                bbox_h3d_tar[bind, :] = transforms.cpu()[:, 9]
+                bbox_l3d_tar[bind, :] = transforms.cpu()[:, 10]
+                bbox_ry3d_tar[bind, :] = transforms.cpu()[:, 11]
 
                 bbox_x3d_proj_tar[bind, :] = raw_gt[:, 12]
                 bbox_y3d_proj_tar[bind, :] = raw_gt[:, 13]
@@ -285,7 +285,7 @@ class RPN_3D_loss(nn.Module):
                     bbox_x3d_dn_fg = bbox_x3d_dn[bind, fg_inds]
                     bbox_y3d_dn_fg = bbox_y3d_dn[bind, fg_inds]
 
-                    src_anchors = self.anchors[rois[fg_inds, 4].type(torch.cuda.LongTensor), :]
+                    src_anchors = self.anchors[rois[fg_inds, 4].type(torch.LongTensor), :]
                     src_anchors = torch.tensor(src_anchors, requires_grad=False).type(torch.cuda.FloatTensor)
                     if len(src_anchors.shape) == 1: src_anchors = src_anchors.unsqueeze(0)
 
