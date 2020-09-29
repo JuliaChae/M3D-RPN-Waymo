@@ -1523,7 +1523,7 @@ def parse_kitti_vo(respath):
 
     return t, r
 
-def test_waymo_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=True):
+def test_waymo_3d(dataset_test, net, rpn_conf, results_path, test_path, test_cam=0, use_log=True):
     """
     Test the KITTI framework for object detection in 3D
     """
@@ -1531,7 +1531,7 @@ def test_waymo_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
     # import read_kitti_cal
     from lib.waymo_imdb_util import read_waymo_cal
 
-    imlist = list_files(os.path.join(test_path, dataset_test, 'validation_left', 'image_3', ''), '*.png')
+    imlist = list_files(os.path.join(test_path, dataset_test, 'validation_left', 'image_' + str(test_cam), ''), '*.png')
 
     preprocess = Preprocess([rpn_conf.test_scale], rpn_conf.image_means, rpn_conf.image_stds)
 
@@ -1549,7 +1549,7 @@ def test_waymo_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
         base_path, name, ext = file_parts(impath)
 
         # read in calib
-        p2 = read_waymo_cal(os.path.join(test_path, dataset_test, 'validation', 'calib', name + '.txt'), camera=3)
+        p2 = read_waymo_cal(os.path.join(test_path, dataset_test, 'validation', 'calib', name + '.txt'), camera=test_cam)
         p2_inv = np.linalg.inv(p2)
 
         # forward test batch
