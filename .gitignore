@@ -17,5 +17,6 @@ data/waymo_split/validation_1/
 data/waymo_split/validation_front/
 data/waymo_split/validation_frontleft/
 data/waymo_split/validation_left/
+data/waymo_split/waymo_utils
 lib/nms/*
 output/*
