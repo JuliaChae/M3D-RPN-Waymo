@@ -9,5 +9,13 @@ data/kitti_split2/validation/*
 data/waymo_split/devkit/cpp/evaluate_object
 data/waymo_split/training/*
 data/waymo_split/validation/*
+data/waymo_split/half_splits/
+data/waymo_split/training_front/
+data/waymo_split/training_frontleft/
+data/waymo_split/training_left/
+data/waymo_split/validation_1/
+data/waymo_split/validation_front/
+data/waymo_split/validation_frontleft/
+data/waymo_split/validation_left/
 lib/nms/*
 output/*
