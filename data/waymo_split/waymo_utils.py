@@ -11,8 +11,8 @@ import random
 # you need to change it to reflect your dataset
 CHANNEL_NUM = 3
 IMAGE_PATH = '/media/trail/harddrive/datasets/Waymo/waymo_10/training/image_0'
-TRAIN_IMG_PATH = '/media/trail/harddrive/datasets/Waymo/waymo_10/training/label_0'
-VAL_IMG_PATH = '/media/trail/harddrive/datasets/Waymo/waymo_10/validation/label_0'
+TRAIN_PATH = '/media/trail/harddrive/datasets/Waymo/waymo_split/training/label_3'
+VAL_PATH = '/media/trail/harddrive/datasets/Waymo/waymo_split/validation/label_3'
 import pdb
 
 def cal_dir_stat():
@@ -38,23 +38,23 @@ def cal_dir_stat():
     return rgb_mean, rgb_std
 
 def generate_train_val_list(train_size, val_size):
-    __, __, files = next(os.walk(TRAIN_IMG_PATH))
-    train_list = random.sample(files, k= train_size)
+    __, __, train_list = next(os.walk(TRAIN_PATH))
+    #train_list = random.sample(train_list, k= train_size)
     train_list.sort()
-    with open('train.txt', 'w') as f:
+    with open('train_left.txt', 'w') as f:
         for x in train_list:
-            f.write(x.replace('.png', '') + '\n')
+            f.write(x.replace('.txt', '') + '\n')
 
-    __, __, files = next(os.walk(VAL_IMG_PATH))
-    val_list = random.sample(files, k= val_size)
+    __, __, val_list = next(os.walk(VAL_PATH))
+    #val_list = random.sample(val_list, k= val_size)
     val_list.sort()
-    with open('val.txt', 'w') as f:
+    with open('val_left.txt', 'w') as f:
         for x in val_list:
-            f.write(x.replace('.png', '') + '\n')
+            f.write(x.replace('.txt', '') + '\n')
 
 
 if __name__ == '__main__':
     #mean, std = cal_dir_stat()
     #print('Mean is: ' + str(mean) + '\n')
     #print('Std is: ' + str(std) + '\n')
-    generate_train_val_list(3000, 200)
+    generate_train_val_list(0, 0)
