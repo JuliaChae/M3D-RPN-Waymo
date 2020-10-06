@@ -127,28 +127,23 @@ Training is split into a warmup and main configurations. Review the configuratio
 
 ``` 
 // First train the warmup (without depth-aware)
-python scripts/train_rpn_3d.py --config=kitti_3d_multi_warmup
+python scripts/train_rpn_3d.py --config=waymo_3d_multi_warmup
 
 // Then train the main experiment (with depth-aware)
-python scripts/train_rpn_3d.py --config=kitti_3d_multi_main
+python scripts/train_rpn_3d.py --config=waymo_3d_multi_main
 ```
 
 If your training is accidentally stopped, you can resume at a checkpoint based on the snapshot with the *restore* flag. 
 For example to resume training starting at iteration 10k, use the following command.
 
 ```
-python scripts/train_rpn_3d.py --config=kitti_3d_multi_main --restore=10000
+python scripts/train_rpn_3d.py --config=waymo_3d_multi_main --restore=10000
 ```
 
 ## Testing
-
-We provide models for the main experiments on val1 / val2 / test data splits available to download here [M3D-RPN-Release.zip](https://www.cse.msu.edu/computervision/M3D-RPN-Release.zip).
 
 Testing requires paths to the configuration file and model weights, exposed variables near the top *scripts/test_rpn_3d.py*. To test a configuration and model, simply update the variables and run the test file as below. 
 
 ```
 python scripts/test_rpn_3d.py 
 ```
-
-## Contact
-For questions regarding M3D-RPN, feel free to post here or directly contact the authors {[brazilga](http://garrickbrazil.com), [liuxm](http://www.cse.msu.edu/~liuxm/index2.html)}@msu.edu.
