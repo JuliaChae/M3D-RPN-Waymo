@@ -49,12 +49,12 @@ sudo systemctl restart docker
 ```
 
 
-## Build Docker Image
+### Build Docker Image
 ```
 ./build.sh
 ```
 
-## Run the Docker Container
+### Run the Docker Container
 ```
 ./run.sh
 ```
